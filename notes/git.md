@@ -11,3 +11,4 @@ rm -rf .git
 
 git branch -m/M main将当前分支重命名为 main
 
+在 Git 中，git push -u 中的 -u 是 --set-upstream 的简写。该选项的作用是将当前本地分支与远程分支建立关联（即设置“上游”分支）。这样，在后续的操作中，您可以简化命令，例如直接使用 git push 或 git pull，而无需每次都指定远程仓库和分支名。
