@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package frontend.auth;
+
+option go_package = "frontend/auth";
+
+import "api.proto";
+import "frontend/common.proto";
+
+message LoginReq {
+  string email = 1 [(api.form)="email"];
+  string password = 2 [(api.form)="password"];
+  string next = 3 [(api.query)="next"];
+}
+
+message RegisterReq {
+  string email = 1 [(api.form)="email"];
+  string password = 2 [(api.form)="password"];
+  string password_confirm= 3 [(api.form)="password_confirm"];
+}
+
+
+
+service AuthService {
+  rpc login(LoginReq) returns (common.Empty) {
+    option (api.post) = "/auth/login";
+  }
+
+  rpc register(RegisterReq) returns (common.Empty) {
+    option (api.post) = "/auth/register";
+  }
+
+  rpc logout(common.Empty) returns (common.Empty) {
+    option (api.post) = "/auth/logout";
+  }
+  // HTTP 的 GET 方法被设计为“安全”的，即不应对服务器状态产生副作用。然而，注销操作会更改用户的认证状态，属于有副作用的操作。因此，使用 POST 方法更符合 HTTP 的语义。
+  // 此外，GET 请求的 URL 可能会被浏览器缓存、记录在浏览历史中，甚至被中间代理服务器预取。如果使用 GET 方法进行注销，可能导致用户在未点击注销链接的情况下被意外注销。
+}

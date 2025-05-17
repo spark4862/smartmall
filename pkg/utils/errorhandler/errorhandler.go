@@ -26,6 +26,7 @@ const (
 func ErrorHandler(err error, callDepth int, action ErrorAction) bool {
 	if err != nil {
 		_, file, line, ok := runtime.Caller(callDepth)
+
 		if !ok {
 			panic("error when get caller")
 		}

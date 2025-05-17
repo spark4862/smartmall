@@ -1,0 +1,19 @@
+services:
+  consul:
+    image: 'hashicorp/consul:1.21'
+    ports:
+      - 8500:8500
+
+  mysql:
+    image: 'mysql:8'
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=test
+
+  redis:
+    image: 'redis:7'
+    ports:
+      - 6379:6379
+
