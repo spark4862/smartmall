@@ -24,6 +24,7 @@ import (
 	"github.com/spark4862/smartmall/app/frontend/biz/router"
 	u "github.com/spark4862/smartmall/app/frontend/biz/utils"
 	"github.com/spark4862/smartmall/app/frontend/conf"
+	"github.com/spark4862/smartmall/app/frontend/infra/rpc"
 	"github.com/spark4862/smartmall/app/frontend/middleware"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -31,8 +32,9 @@ import (
 
 func main() {
 	_ = godotenv.Load()
-	// init dal
-	// dal.Init()
+
+	rpc.Init()
+
 	address := conf.GetConf().Hertz.Address
 	h := server.New(server.WithHostPorts(address))
 

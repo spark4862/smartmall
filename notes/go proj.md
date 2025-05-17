@@ -24,3 +24,29 @@ MDN HTTP response status codes：https://developer.mozilla.org/zh-CN/docs/Web/HT
 
 正确切换go版本
 go env -w GOTOOLCHAIN='go1.24.0'
+
+可以尝试删除go.sum和go.work.sum
+你把某个依赖模块切换到了自托管的私有仓库或者本地替换（replace），但原来的 go.sum 里还记录着旧仓库的校验和。
+这时 Go 发现校验不对，就会报错，删掉 go.sum 让它在下次 go mod tidy 时重新生成，就不会再和旧校验冲突了。
+
+如果work和mod存在于一个目录中，依赖判断会比较麻烦
+当你把根目录的 go.mod 删除以后，就不再有一个“更高层级”的模块去挡住（shadow）你的工作区，Go 工具链就会把你当前所在目录和它上层都当成 “没有 go.mod，正在工作区里” 这种场景来处理，这时它才会真正去读 go.work，把 use 进来的子模块都当成本地模块来解析。
+当你在一个目录里运行 go build、go mod tidy、go test 等命令时，Go 会一路往上找最近的 go.mod，把它当作“当前模块”的根。
+只有当命令在一个“无 go.mod 且在 go.work 覆盖范围内”的目录下时，Go 才会把整个 go.work 当作一个更大范围来解析依赖。
+
+
+如果保留根目录的 go.mod，go mod tidy 系列命令就永远“只看它”，此时要想让 tidy 理解本地模块，必须在你的 go.mod 里用 replace（或把根当聚合模块）。
+go.work 依然对构建、测试、运行有大用处，它可以让你在本地联调多模块而不去拉远程，只是它不参与 go mod 子命令的依赖解析
+
+
+go run .和go test运行路径即为程序中相对路径查找是用的路径，比如conf.go
+因此为测试带来了困难
+可以使用
+dir := filepath.Dir(filename)
+// 假设项目根目录在当前文件的上两级目录
+_, filename, _, _ := runtime.Caller(0)
+dir := filepath.Dir(filename)
+// 假设项目根目录在当前文件的上两级目录
+projectRoot := filepath.Join(dir, "..", "..")
+_ = os.Chdir(projectRoot)
+_ = godotenv.Load()

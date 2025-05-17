@@ -6,11 +6,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/hertz-contrib/sessions"
+	frontendUtils "github.com/spark4862/smartmall/app/frontend/utils"
 )
-
-type SessionUserIdKey string
-
-const SessionUserId SessionUserIdKey = "user_id"
 
 // context包中不推荐使用string类型作为key,以减少碰撞风险
 
@@ -19,7 +16,7 @@ const SessionUserId SessionUserIdKey = "user_id"
 func GlobalAuth() app.HandlerFunc {
 	return func(ctx context.Context, reqCtx *app.RequestContext) {
 		s := sessions.Default(reqCtx)
-		ctx = context.WithValue(ctx, SessionUserId, s.Get("user_id"))
+		ctx = context.WithValue(ctx, frontendUtils.SessionUserId, s.Get("user_id"))
 
 		reqCtx.Next(ctx)
 	}

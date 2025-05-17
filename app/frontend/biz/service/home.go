@@ -33,8 +33,8 @@ func (h *HomeService) Run(req *common.Empty) (map[string]any, error) {
 		{"Name": "egg", "Price": 10, "Picture": "/static/img/food/egg.jpg"},
 	}
 
-	resp["Title"] = "Smart Mall"
-	resp["Items"] = items
+	resp["title"] = "Smart Mall"
+	resp["items"] = items
 
 	return resp, nil
 }

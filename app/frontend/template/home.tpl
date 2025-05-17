@@ -4,7 +4,7 @@
 <!-- .是对模板传入参数 -->
 
 <div class="row">
-    {{range .Items}}
+    {{range .items}}
     <div class="card col-xl-3 col-lg-4 col-md-6 col-sm-12 p-4 border-0">
         <img src="{{.Picture}}" class="card-img-top" alt="...">
         <!-- 注意外面的引号 -->

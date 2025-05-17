@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{$.Title}}</title>
+    <title>{{$.title}}</title>
     <!-- 访问顶级作用域对象 -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <!-- 如果crossorigin="use-credentials"，浏览器在请求 styles.css 时会附带用户的凭据，如 Cookies 和认证头部 -->

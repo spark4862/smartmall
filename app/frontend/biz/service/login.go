@@ -6,6 +6,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/hertz-contrib/sessions"
 	auth "github.com/spark4862/smartmall/app/frontend/hertz_gen/frontend/auth"
+	"github.com/spark4862/smartmall/app/frontend/infra/rpc"
+	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/user"
 )
 
 type LoginService struct {
@@ -18,13 +20,15 @@ func NewLoginService(Context context.Context, RequestContext *app.RequestContext
 }
 
 func (h *LoginService) Run(req *auth.LoginReq) (redirect string, err error) {
-	//defer func() {
-	// hlog.CtxInfof(h.Context, "req = %+v", req)
-	// hlog.CtxInfof(h.Context, "resp = %+v", resp)
-	//}()
-	// todo edit your code
+	resp, err := rpc.UserClient.Login(h.Context, &user.LoginReq{
+		Email:    req.Email,
+		Password: req.Password,
+	})
+	if err != nil {
+		return "", err
+	}
 	session := sessions.Default(h.RequestContext)
-	session.Set("user_id", 1)
+	session.Set("user_id", resp.UserId)
 	if err = session.Save(); err != nil {
 		return
 	}
