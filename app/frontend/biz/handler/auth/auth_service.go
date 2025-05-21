@@ -17,6 +17,8 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req auth.LoginReq
 	err = c.BindAndValidate(&req)
+	// 数据绑定：将 HTTP 请求中的参数（如路径参数、查询参数、表单参数、JSON 等）绑定到指定的结构体字段中。
+	// 数据验证：根据结构体字段上的标签（如 required）进行验证，确保必要的字段不为空等。
 	if err != nil {
 		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
 		return

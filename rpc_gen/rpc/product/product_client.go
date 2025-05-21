@@ -4,13 +4,13 @@ import (
 	"context"
 	product "github.com/spark4862/smartmall/rpc_gen/kitex_gen/product"
 
-	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/product/productcatalogservice"
+	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/product/productcategoryservice"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/client/callopt"
 )
 
 type RPCClient interface {
-	KitexClient() productcatalogservice.Client
+	KitexClient() productcategoryservice.Client
 	Service() string
 	ListProducts(ctx context.Context, Req *product.ListProductReq, callOptions ...callopt.Option) (r *product.ListProductResp, err error)
 	GetProduct(ctx context.Context, Req *product.GetProductReq, callOptions ...callopt.Option) (r *product.GetProductResp, err error)
@@ -18,7 +18,7 @@ type RPCClient interface {
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
-	kitexClient, err := productcatalogservice.NewClient(dstService, opts...)
+	kitexClient, err := productcategoryservice.NewClient(dstService, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -32,14 +32,14 @@ func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
 
 type clientImpl struct {
 	service     string
-	kitexClient productcatalogservice.Client
+	kitexClient productcategoryservice.Client
 }
 
 func (c *clientImpl) Service() string {
 	return c.service
 }
 
-func (c *clientImpl) KitexClient() productcatalogservice.Client {
+func (c *clientImpl) KitexClient() productcategoryservice.Client {
 	return c.kitexClient
 }
 

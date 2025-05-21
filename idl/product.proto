@@ -39,7 +39,7 @@ message SearchProductsResp {
   repeated Product results = 1;
 }
 
-service ProductCatalogService {
+service ProductCategoryService {
   rpc ListProducts(ListProductReq) returns (ListProductResp) {};
   rpc GetProduct(GetProductReq) returns (GetProductResp) {};
   rpc SearchProducts(SearchProductsReq) returns (SearchProductsResp);

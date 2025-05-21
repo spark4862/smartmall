@@ -4,4 +4,6 @@ package frontend.common;
 
 option go_package = "frontend/common";
 
+// 注意，如果这个包同时被kitex和hertz代码生成proto
+
 message Empty {}

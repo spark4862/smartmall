@@ -6,7 +6,8 @@ import (
 
 type User struct {
 	gorm.Model
-	Email          string `gorm:"uniqueIndex; type:varchar(255)"`
+	Email string `gorm:"uniqueIndex; type:varchar(255)"`
+	// 和unique的区别在于可以创建索引做更精细的控制，如两个字段使用相同带uniqueIndex名，作为唯一字段组
 	PasswordHashed string `gorm:"type:varchar(255) not null"`
 }
 

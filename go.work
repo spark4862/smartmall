@@ -2,6 +2,15 @@ go 1.24.3
 
 use (
 	./app/frontend
+	./app/product
+	./app/cart
 	./app/user
+	./app/payment
+	./app/checkout
+	./app/order
 	./rpc_gen
 )
+
+// replace (
+// 	github.com/spark4862/smartmall/rpc_gen => ./rpc_gen
+// )

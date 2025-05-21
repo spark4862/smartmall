@@ -5,6 +5,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- width=device-width：将视口的宽度设置为设备的屏幕宽度。
+    initial-scale=1：设置页面的初始缩放比例为 1，即页面在加载时不进行缩放。 -->
+    {{ if $.redirect }}
+    <meta http-equiv="refresh" content="5; url={{$.redirect}}">
+    <!-- http-equiv="refresh"：指示浏览器在指定时间后刷新页面或跳转到新的 URL。
+    content="5; url=/checkout/result"：设置刷新或跳转的时间间隔和目标地址。 -->
+    {{ end }}
     <title>{{$.title}}</title>
     <!-- 访问顶级作用域对象 -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
@@ -38,22 +45,21 @@
                                 Categories
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">T-shirt</a></li>
-                                <li><a class="dropdown-item" href="#">Sticker</a></li>
+                                <li><a class="dropdown-item" href="/category/meat">Meat</a></li>
+                                <li><a class="dropdown-item" href="/category/Vegetarian">Vegetarian</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" aria-disabled="true" href="/about">About</a>
                         </li>
                     </ul>
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+                    <form class="d-flex ms-auto" role="search" action="/search" method="get">
+                        <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search"
+                            value="{{ .q }}">
                         <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
 
-                    <div class="ms-3">
-                        <i class="fa-solid fa-cart-shopping" style="font-size: 2rem"></i>
-                    </div>
+                    {{ template "cart-num" . }}
 
                     {{if .user_id}}
                     <div class="dropdown">
@@ -64,6 +70,7 @@
                         </div>
                         <!-- data-bs-toggle 是 Bootstrap 5 中用于启用特定组件行为的 HTML 数据属性。通过将此属性添加到元素上，可以无需编写 JavaScript 代码，直接实现如折叠（collapse）、模态框（modal）、标签页（tab）等交互功能 -->
                         <ul class="dropdown-menu dropdown-menu-end mt-3">
+                            <li><a class="dropdown-item" href="/order">Order Center</a></li>
                             <li><a class="dropdown-item" href="#">Order Center</a></li>
                             <li>
                                 <form action="/auth/logout" method="post">
