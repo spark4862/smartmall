@@ -5,12 +5,18 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/kerrors"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/nats-io/nats.go"
+	"github.com/spark4862/smartmall/app/checkout/infra/mq"
 	"github.com/spark4862/smartmall/app/checkout/infra/rpc"
 	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/cart"
 	checkout "github.com/spark4862/smartmall/rpc_gen/kitex_gen/checkout"
+	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/email"
 	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/order"
 	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/payment"
 	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/product"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	"google.golang.org/protobuf/proto"
 )
 
 type CheckoutService struct {
@@ -112,7 +118,25 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		return nil, kerrors.NewGRPCBizStatusError(5005004, err.Error())
 	}
 
+	data, _ := proto.Marshal(&email.EmailReq{
+		From:        "checkout@example.com",
+		To:          req.Email,
+		ContentType: "text/plain",
+		Subject:     "Order Confirmation",
+		Content:     "Order Confirmation",
+	})
+
+	msg := &nats.Msg{
+		Subject: "email",
+		Data:    data,
+		Header:  make(nats.Header),
+	}
+	otel.GetTextMapPropagator().Inject(s.ctx, propagation.HeaderCarrier(msg.Header))
+
+	_ = mq.Nc.PublishMsg(msg)
+
 	klog.Info(paymentResult)
+	klog.Info(orderResp)
 
 	resp = &checkout.CheckoutResp{
 		OrderId:       orderId,

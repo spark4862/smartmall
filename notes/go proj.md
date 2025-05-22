@@ -184,3 +184,83 @@ github.com/spark4862/smartmall/app/frontend/hertz_gen/frontend/common
 github.com/spark4862/smartmall/rpc_gen/kitex_gen/frontend/common
 尽管它们来自同一个 common.proto，但生成的代码位于不同的 Go 包路径，从而引发注册冲突。
 核心思想：确保所有服务（Hertz、Kitex 等）引用同一个 common.pb.go，避免重复生成。
+
+当一个请求从客户端到达 Kitex Server 时，NewServerSuite() 会自动从请求中提取 OpenTelemetry 上下文（例如，通过请求头中的 traceparent 信息）。
+
+在这个过程中，NewServerSuite() 会使用由 OpenTelemetryProvider 初始化的 Tracer 来生成新的 Span 或续写当前的追踪链。
+
+OpenTelemetry 提供的上下文机制
+分布式追踪（Distributed Tracing）是一种监控技术，主要用于跟踪跨多个服务、应用或组件的请求流
+
+logrus
+
+Promtail 是一个日志收集工具，主要用于与 Loki（由 Grafana 提供的日志聚合系统）配合使用。它从多个来源收集日志文件，并将这些日志推送到 Loki 中进行存储和分析。Promtail 是一个轻量级的代理，可以作为日志收集的“推送”工具，类似于其他日志收集工具，如 Filebeat 或 Fluentd，但专门为 Grafana 的 Loki 构建和优化。
+
+go mod tidy 应该和go mod download && go mod verify配合使用
+
+只读性：构建过程中生成的中间层是只读的
+缓存机制：
+Docker 会缓存未改变的层
+如果 Dockerfile 的某行及其之前的行没有变化，就会重用缓存
+
+优化中间层的实践 
+将变化频率低的指令放在前面
+使用 .dockerignore：避免不必要的文件被复制
+多阶段构建：只保留必要的层到最终镜像
+合并指令
+清理临时文件：在同一 RUN 指令中创建和删除临时文件
+
+容器的镜像通常由多个只读层组成，每个层都有特定的文件和更改。每个容器启动时，都会在镜像的最上面添加一个写层。这使得容器能够修改文件系统，同时保持镜像的只读性。
+UnionFS 允许不同容器共享相同的只读层（例如，多个容器可以共享同一个镜像层），这大大减少了需要占用的磁盘空间
+Docker 容器启动时，镜像层是已经构建好的
+Docker 镜像由多个层（层叠文件系统）组成，这样每次修改镜像时，只需要创建新的层，而不必重新构建整个镜像
+
+1. 会生成独立文件系统层的指令（实际存储变更）
+这些指令会真正影响镜像的文件系统，生成可观察的存储层：
+
+RUN - 执行命令并创建新层
+
+COPY - 复制文件生成新层
+
+ADD - 类似 COPY 但功能更多
+
+WORKDIR - 虽然只改元数据但仍生成层
+
+2. 只生成元数据层的指令（0B层）
+这些指令会出现在镜像历史中，但不会增加实际存储空间：
+
+ENV - 设置环境变量
+
+LABEL - 添加元数据
+
+MAINTAINER - 维护者信息(已弃用)
+
+EXPOSE - 声明端口
+
+VOLUME - 声明卷挂载点
+
+USER - 设置用户
+
+ARG - 构建时变量
+
+ONBUILD - 触发器指令
+
+使用 docker history 查看时会显示 SIZE=0B
+
+3. 完全不生成层的指令
+这些指令不会出现在最终镜像的层结构中：
+
+FROM - 指定基础镜像
+
+CMD - 容器启动命令
+
+ENTRYPOINT - 入口点
+
+HEALTHCHECK - 健康检查
+
+SHELL - 指定 shell
+
+STOPSIGNAL - 停止信号
+
+特殊情况说明
+多阶段构建：COPY --from 会生成新层，但 FROM ... AS 不会

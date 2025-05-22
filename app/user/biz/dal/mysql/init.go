@@ -9,6 +9,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 var (
@@ -28,6 +29,10 @@ func Init() {
 			// 默认在每次写操作（创建、更新、删除）时，自动开启一个事务，以确保数据的一致性，设置后GORM 将不会自动开启事务。
 		},
 	)
+
+	if err := DB.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
+		panic(err)
+	}
 	_ = DB.AutoMigrate(&model.User{})
 	if err != nil {
 		panic(err)

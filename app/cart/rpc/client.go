@@ -4,15 +4,18 @@ import (
 	"sync"
 
 	"github.com/cloudwego/kitex/client"
-	consul "github.com/kitex-contrib/registry-consul"
 	"github.com/spark4862/smartmall/app/cart/conf"
 	cartutils "github.com/spark4862/smartmall/app/cart/utils"
+	"github.com/spark4862/smartmall/common/clientsuite"
 	"github.com/spark4862/smartmall/rpc_gen/kitex_gen/product/productcategoryservice"
 )
 
 var (
 	ProductClient productcategoryservice.Client
 	once          sync.Once
+	ServiceName   = conf.GetConf().Kitex.Service
+	RegisterAddr  = conf.GetConf().Registry.RegistryAddress[0]
+	err           error
 )
 
 func Init() {
@@ -22,8 +25,13 @@ func Init() {
 }
 
 func initProductClient() {
-	r, err := consul.NewConsulResolver(conf.GetConf().Registry.RegistryAddress[0])
-	cartutils.MustHandleError(err)
-	ProductClient, err = productcategoryservice.NewClient("product", client.WithResolver(r))
+	opts := []client.Option{
+		client.WithSuite(clientsuite.CommonClientSuite{
+			CurrentServiceName: ServiceName,
+			RegistryAddr:       RegisterAddr,
+		}),
+	}
+
+	ProductClient, err = productcategoryservice.NewClient("product", opts...)
 	cartutils.MustHandleError(err)
 }

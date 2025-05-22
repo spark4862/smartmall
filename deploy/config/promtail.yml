@@ -1,0 +1,35 @@
+# config.yml
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+# http_listen_port: Promtail 将在这个端口上启动 HTTP 服务器，通常用于暴露 Promtail 本身的健康检查和其他 API。
+# 这里配置的是 9080，意味着 Promtail 会在这个端口上监听 HTTP 请求。
+# grpc_listen_port: 这个配置设置 Promtail 用于 gRPC 通信的端口。
+# 设置为 0 表示 Promtail 不启用 gRPC 服务。
+
+positions:
+  filename: /tmp/positions.yaml
+  # Promtail 用于存储已读取日志文件的位置信息。这样，Promtail 可以在重新启动时从上次停止的位置继续读取日志，而不会重复读取之前的日志
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+  # 推送到loki
+
+scrape_configs:
+  - job_name: hertz
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+      - labels:
+          level:
+      # level: level 表示从日志的 JSON 数据中提取 level 字段，并将其作为标签加到日志中。这通常用于日志的严重程度（如 info、warn、error）。
+    static_configs:
+      - targets:
+          - localhost
+          # targets: 这里定义了日志的来源。localhost 表示 Promtail 会监视本地的日志文件
+        labels:
+          # labels: 这些是与日志相关的标签，用于为日志数据添加元数据
+          app: frontend
+          __path__: /logs/frontend/hertz.log
+          # __path__ 是 Promtail 特有的标签，表示要收集的日志文件的路径。

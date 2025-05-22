@@ -217,8 +217,8 @@ github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 h1:nn5Wsu0esKSJiIVhscUt
 github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg65j358z/aeFdxmN0P9QXhEzd20vsDc=
 github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ=
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
-github.com/spark4862/smartmall/rpc_gen v0.0.0-20250517161124-d4fc27e13bd6 h1:eaNTnbwKGm2k4Ttm1iFE2Ekzbb/OxhLABacCCoT2dAo=
-github.com/spark4862/smartmall/rpc_gen v0.0.0-20250517161124-d4fc27e13bd6/go.mod h1:yBaAZHtpTLKrcSg8210tU1KAKvqroxy6/J5DPQavNJs=
+github.com/spark4862/smartmall/rpc_gen v0.1.0 h1:bYTs4w64YBC8VTHTVe/s30ULtNqhYseGpr5dEKkkhG4=
+github.com/spark4862/smartmall/rpc_gen v0.1.0/go.mod h1:yBaAZHtpTLKrcSg8210tU1KAKvqroxy6/J5DPQavNJs=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpEOglKo=

@@ -17,6 +17,9 @@ import (
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/logger/accesslog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
+	prometheus "github.com/hertz-contrib/monitor-prometheus"
+	hertzobslogrus "github.com/hertz-contrib/obs-opentelemetry/logging/logrus"
+	"github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/hertz-contrib/pprof"
 	"github.com/hertz-contrib/sessions"
 	"github.com/hertz-contrib/sessions/redis"
@@ -26,17 +29,43 @@ import (
 	"github.com/spark4862/smartmall/app/frontend/conf"
 	"github.com/spark4862/smartmall/app/frontend/infra/rpc"
 	"github.com/spark4862/smartmall/app/frontend/middleware"
+	frontendUtils "github.com/spark4862/smartmall/app/frontend/utils"
+	"github.com/spark4862/smartmall/common/mtl"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+)
+
+var (
+	ServiceName  = frontendUtils.ServiceName
+	MetricsPort  = conf.GetConf().Hertz.MetricsPort
+	RegisterAddr = conf.GetConf().Hertz.RegistryAddr
 )
 
 func main() {
 	_ = godotenv.Load()
 
+	p := mtl.InitTracing(ServiceName)
+	defer p.Shutdown(context.Background())
+
+	consul, registryInfo := mtl.InitMetric(ServiceName, MetricsPort, RegisterAddr)
+	defer consul.Deregister(registryInfo)
 	rpc.Init()
 
 	address := conf.GetConf().Hertz.Address
-	h := server.New(server.WithHostPorts(address))
+
+	tracer, cfg := tracing.NewServerTracer()
+
+	h := server.New(
+		server.WithHostPorts(address),
+		server.WithTracer(
+			prometheus.NewServerTracer(
+				"", "", prometheus.WithDisableServer(true),
+				prometheus.WithRegistry(mtl.Registry),
+			),
+		),
+		tracer,
+	)
+	h.Use(tracing.ServerMiddleware(cfg))
 
 	registerMiddleware(h)
 
@@ -63,6 +92,8 @@ func main() {
 	})
 
 	h.GET("/about", func(c context.Context, ctx *app.RequestContext) {
+		hlog.CtxInfof(c, "smart mall shop about page")
+		// 用来在指定上下文（context.Context）中输出格式化的日志消息
 		ctx.HTML(consts.StatusOK, "about", u.WarpResponse(c, ctx, make(map[string]any)))
 	})
 
@@ -82,9 +113,16 @@ func registerMiddleware(h *server.Hertz) {
 	// 连接池大小 通信协议 地址 密码 密钥
 
 	// log
-	logger := hertzlogrus.NewLogger()
+	logger := hertzobslogrus.NewLogger(hertzobslogrus.WithLogger(hertzlogrus.NewLogger().Logger()))
 	hlog.SetLogger(logger)
 	hlog.SetLevel(conf.LogLevel())
+
+	var flushInterval time.Duration
+	if os.Getenv("GO_ENV") == "online" {
+		flushInterval = time.Minute
+	} else {
+		flushInterval = time.Second
+	}
 	asyncWriter := &zapcore.BufferedWriteSyncer{
 		WS: zapcore.AddSync(&lumberjack.Logger{
 			Filename:   conf.GetConf().Hertz.LogFileName,
@@ -92,7 +130,8 @@ func registerMiddleware(h *server.Hertz) {
 			MaxBackups: conf.GetConf().Hertz.LogMaxBackups,
 			MaxAge:     conf.GetConf().Hertz.LogMaxAge,
 		}),
-		FlushInterval: time.Minute,
+		FlushInterval: flushInterval,
+		// 刷盘时间
 	}
 	hlog.SetOutput(asyncWriter)
 	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {

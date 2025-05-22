@@ -1,0 +1,40 @@
+# config.yml
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /tmp/loki
+  storage:
+    filesystem:
+      chunks_directory: /tmp/loki/chunks
+      rules_directory: /tmp/loki/rules
+      # chunks_directory: 存储日志数据的“块”（chunks）。Loki 将日志数据分为多个块存储，以提高查询效率。这里设置的是 /tmp/loki/chunks。
+      # rules_directory: 存储规则文件的目录，规则通常用于数据的分片、索引等操作。这里设置的是 /tmp/loki/rules。
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+      # embedded_cache.enabled: true: 启用内存中的查询结果缓存，这样查询的结果可以被缓存，从而减少对磁盘的访问，提高查询性能。
+      # max_size_mb: 100: 设置缓存的最大大小为 100 MB，当缓存的内容达到这个大小时，会清除部分缓存数据。
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: tsdb
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+        # 索引分割

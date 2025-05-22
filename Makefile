@@ -43,3 +43,9 @@ export MOD=order
 gen-order:
 	cd rpc_gen && cwgo client --type RPC --service ${MOD} --module ${ROOT_MOD}/rpc_gen -I ../idl --idl ../idl/${MOD}.proto
 	cd app/${MOD} && cwgo server --type RPC --service ${MOD} --module ${ROOT_MOD}/app/${MOD} -I ../../idl --idl ../../idl/${MOD}.proto --pass "--use ${ROOT_MOD}/rpc_gen/kitex_gen"
+
+export MOD=email
+.PHONY: gen-email
+gen-email:
+	cd rpc_gen && cwgo client --type RPC --service ${MOD} --module ${ROOT_MOD}/rpc_gen -I ../idl --idl ../idl/${MOD}.proto
+	cd app/${MOD} && cwgo server --type RPC --service ${MOD} --module ${ROOT_MOD}/app/${MOD} -I ../../idl --idl ../../idl/${MOD}.proto --pass "--use ${ROOT_MOD}/rpc_gen/kitex_gen"
