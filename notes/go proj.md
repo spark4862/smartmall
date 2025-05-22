@@ -264,3 +264,14 @@ STOPSIGNAL - 停止信号
 
 特殊情况说明
 多阶段构建：COPY --from 会生成新层，但 FROM ... AS 不会
+
+shopt -s globstar 是一个在 Bash 中启用 globstar 扩展的命令。globstar 扩展允许你在文件路径中使用 ** 来递归匹配所有子目录中的文件和文件夹。
+
+解释：
+shopt：是 Bash 的一个内部命令，用于设置或取消启用某些 shell 选项。
+
+-s：表示启用指定的选项（相反的，-u 是用来禁用选项的）。
+
+
+
+echo app/cart/v0.2.0 app/checkout/v0.2.0 app/email/v0.2.0 app/frontend/v0.2.0 app/order/v0.2.0 app/payment/v0.2.0 app/product/v0.2.0 app/user/v0.2.0 common/v0.2.0 rpc_gen/v0.2.0 | xargs -n 1 git tag
